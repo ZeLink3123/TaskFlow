@@ -1,0 +1,17 @@
+{
+  "name": "ma_wednesday430pm_team4",
+  "version": "1.0.0",
+  "description": "Due to the high cost of using pre-existing project management tools, our project manager has decided to build an in-house project management tool to manage current and future projects.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tailwindcss -i ./src/input.css -o ./dist/tailwind-output.css",
+    "watch": "tailwindcss -i ./src/input.css -o ./dist/tailwind-output.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "tailwindcss": "^3.4.10"
+  }
+}

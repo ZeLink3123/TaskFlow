@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/7.14.1-0/firebase.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Inter' rel='stylesheet'>
+    <link href="../dist/tailwind-output.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <span>TaskFlow</span>
+        </div>
+        <div class="sidebar-options">
+            <ul class="nav-menu">
+                <li><button class="menu-item"><i class="fas fa-clock icon-spacing"></i> Backlog</button></li>
+                <li><button class="menu-item"><i class="fas fa-clipboard icon-spacing"></i> SprintBoard</button></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="top-bar">
+        <div class="top-bar-content">
+            <div class="dropdown">
+                <button class="top-bar-button">
+                    <i class="fas fa-sort"></i> Sort
+                </button>
+                <div class="dropdown-content" id="sort-dropdown">
+                    <a href="#" onclick="sortTasks('date-asc')">Date Ascending</a>
+                    <a href="#" onclick="sortTasks('date-desc')">Date Descending</a>
+                    <a href="#" onclick="sortTasks('priority-asc')">Priority Ascending</a>
+                    <a href="#" onclick="sortTasks('priority-desc')">Priority Descending</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <button class="top-bar-button">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+                <div class="dropdown-content" id="filter-dropdown">
+                    <a href="#" onclick="filterTasks('Frontend')">Frontend</a>
+                    <a href="#" onclick="filterTasks('Backend')">Backend</a>
+                    <a href="#" onclick="filterTasks('UI')">UI</a>
+                    <a href="#" onclick="filterTasks('UX')">UX</a>
+                    <a href="#" onclick="filterTasks('Database')">Database</a>
+                    <a href="#" onclick="filterTasks('API')">API</a>
+                    <a href="#" onclick="filterTasks('Testing')">Testing</a>
+                    <a href="#" onclick="filterTasks('Framework')">Framework</a>
+                    <a href="#" onclick="filterTasks('')">Show All</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="canvas">
+        <!-- Task cards will be inserted here dynamically -->
+    </div>
+
+    <!-- To dim background layers when pop up appears-->
+    <div class="overlay" id="overlay"></div>
+    <div class="popupoverlay" id="popupoverlay"></div>
+
+    <button class="add-task-btn" onclick="openTaskForm()">+ Add Task</button>
+
+    <div class="task-popup" id="task-popup">
+        <div class="popup-content">
+            <button class="close-popup" onclick="closeTaskForm()">x</button>
+            <h2>Add New Task</h2>
+            <form id="task-form">
+                <label for="task-name">Task Name</label>
+                <input type="text" id="task-name" required>
+    
+                <label for="task-desc">Task Description</label>
+                <textarea id="task-desc" required></textarea>
+
+                <div class="inline-label-input">
+                    <label for="tags">Tags</label>
+                    <div class="custom-dropdown">
+                        <button type="button" class="dropdown-toggle" onclick="toggleDropdown('tags-dropdown')">Select Tags</button>
+                        <div class="dropdown-menu" id="tags-dropdown">
+                            <label class="checkbox-container"><input type="checkbox" value="Frontend" onclick="updateTags(this, 'tags')"><span>Frontend</span></label>
+                            <label class="checkbox-container"><input type="checkbox" value="Backend" onclick="updateTags(this, 'tags')"><span>Backend</span></label>
+                            <label class="checkbox-container"><input type="checkbox" value="UI" onclick="updateTags(this, 'tags')"><span>UI</span></label>
+                            <label class="checkbox-container"><input type="checkbox" value="UX" onclick="updateTags(this, 'tags')"><span>UX</span></label>
+                            <label class="checkbox-container"><input type="checkbox" value="Database" onclick="updateTags(this, 'tags')"><span>Database</span></label>
+                            <label class="checkbox-container"><input type="checkbox" value="API" onclick="updateTags(this, 'tags')"><span>API</span></label>
+                            <label class="checkbox-container"><input type="checkbox" value="Testing" onclick="updateTags(this, 'tags')"><span>Testing</span></label>
+                            <label class="checkbox-container"><input type="checkbox" value="Framework" onclick="updateTags(this, 'tags')"><span>Framework</span></label>
+                        </div>
+                    </div>
+                </div>
+    
+                <div class="inline-label-input">
+                    <label for="priority">Priority</label>
+                    <select id="priority" required>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Important">Important</option>
+                        <option value="Urgent">Urgent</option>
+                    </select>
+                </div>
+    
+                <div class="inline-label-input">
+                    <label for="story-points">Story Points</label>
+                    <input type="number" id="story-points" min="1" max="10" required>
+                </div>
+    
+                <div class="inline-label-input">
+                    <label for="Type">Type</label>
+                    <select id="Type" required>
+                        <option value="Story">Story</option>
+                        <option value="Bug">Bug</option>
+                    </select>
+                </div>
+    
+                <div class="inline-label-input">
+                    <label for="Status">Status</label>
+                    <select id="Status" required>
+                        <option value="Not Started">Not Started</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+    
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- <div class="detailed-task-card" id="detailed-task-card">Put the UI in here. This is just a test</div> -->
+     <div class="task-details-popup" id="task-details-popup">
+        <div class="popup-content">
+            <button class = "close-popup" onclick="closeDetailedTaskCard()">×</button>
+            <!-- <h2>Task Details</h2> -->
+            <div class = "task-details-content" id="task-details-content"></div>
+            <!-- <button class = "edit-task" onclick = "openEditTaskForm()">EDIT</button> -->
+        </div>
+    </div>
+
+    <!-- This is the edit task form -->
+    <div class="task-popup" id="edit-task-popup">
+        <div class="popup-content">
+            <button class="close-popup" onclick="closeEditTaskForm()">×</button>
+            <h2>Edit Task</h2>
+            <form id="task-form">
+                <label for="edit-task-name">Task Name</label>
+                <input type="text" id="edit-task-name" required>
+    
+                <label for="edit-task-desc">Task Description</label>
+                <textarea id="edit-task-desc" required></textarea>
+    
+                <div class="inline-label-input">
+                    <label for="edit-tags">Tags</label>
+                    <div class="custom-dropdown">
+                        <button type="button" class="dropdown-toggle" onclick="toggleDropdown('edit-tags-dropdown')">Select Tags</button>
+                        <div class="dropdown-menu" id="edit-tags-dropdown">
+                            <label class="checkbox-container"><input type="checkbox" value="Frontend" onclick="updateTags(this, 'edit-tags')"><span>Frontend</span></label>
+                            <label class="checkbox-container"><input type="checkbox" value="Backend" onclick="updateTags(this, 'edit-tags')"><span>Backend</span></label>
+                            <label class="checkbox-container"><input type="checkbox" value="UI" onclick="updateTags(this, 'edit-tags')"><span>UI</span></label>
+                            <label class="checkbox-container"><input type="checkbox" value="UX" onclick="updateTags(this, 'edit-tags')"><span>UX</span></label>
+                            <label class="checkbox-container"><input type="checkbox" value="Database" onclick="updateTags(this, 'edit-tags')"><span>Database</span></label>
+                            <label class="checkbox-container"><input type="checkbox" value="API" onclick="updateTags(this, 'edit-tags')"><span>API</span></label>
+                            <label class="checkbox-container"><input type="checkbox" value="Testing" onclick="updateTags(this, 'edit-tags')"><span>Testing</span></label>
+                            <label class="checkbox-container"><input type="checkbox" value="Framework" onclick="updateTags(this, 'edit-tags')"><span>Framework</span></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="inline-label-input">
+                    <label for="edit-priority">Priority</label>
+                    <select id="edit-priority">
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Important">Important</option>
+                        <option value="Urgent">Urgent</option>
+                    </select>
+                </div>
+    
+                <div class="inline-label-input">
+                    <label for="edit-story-points">Story Points</label>
+                    <input type="number" id="edit-story-points" min="1" max="10" required>
+                </div>
+    
+                <div class="inline-label-input">
+                    <label for="edit-Type">Type</label>
+                    <select id="edit-Type" required>
+                        <option value="Story">Story</option>
+                        <option value="Bug">Bug</option>
+                    </select>
+                </div>
+    
+                <div class="inline-label-input">
+                    <label for="edit-status">Status</label>
+                    <select id="edit-status" required>
+                        <option value="Not Started">Not Started</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+    
+                <button type="submit" id="save-edits-button">Save Edits</button>
+            </form>
+        </div>
+    </div>
+    
+</body>
+</html>
